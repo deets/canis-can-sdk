@@ -29,17 +29,12 @@
 #define MCP25xxFD
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-// This is where different hosts and CAN controllers are pulled together.
-// For now, only the MCP25xxFD is supported and only the RP2040 host.
-#if !defined(HOST_RP2040) && defined(HOST_CANPICO)
-#define HOST_RP2040
-#endif
-
 #if defined(MCP25xxFD)
 #include "mcp25xxfd/mcp25xxfd-types.h"
 #if defined(HOST_RP2040)
 #include "mcp25xxfd/rp2/mcp25xxfd-rp2.h"
+#elif defined(HOST_P2)
+#include "mcp25xxfd/p2/mcp25xxfd-p2.h"
 #else
 #error "Unknown host"
 #endif
@@ -481,7 +476,7 @@ INLINE void can_make_frame(can_frame_t *frame, bool ide, uint32_t arbitration_id
     frame->dlc = dlc;
     frame->remote = remote;
     frame->id_filter = 0;
-    frame->uref = can_uref_null;    // User can fill this in later if necessary
+    frame->uref = 0; //can_uref_null;    // User can fill this in later if necessary
     // Copy the correct number of data bytes in
     uint8_t *dst = (uint8_t *)frame->data;
     switch(dlc) {

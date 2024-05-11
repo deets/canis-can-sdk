@@ -71,6 +71,7 @@
 // requests should be issued.
 
 #include <stdbool.h>
+#include <stdio.h>
 
 // Brings in API, chip-specific and board-specific definitions
 #include "../canapi.h"
@@ -361,6 +362,8 @@ uint32_t WEAK TIME_CRITICAL can_isr_callback_uref(can_uref_t uref)
 #define             TXCANOD         (1U << 28)
 #define             PM1             (1U << 25)
 #define             PM0             (1U << 24)
+#define             LAT1            (1U << 9)
+#define             LAT0            (1U << 8)
 #define             TRIS1           (1U << 1)
 #define             TRIS0           (1U << 0)
 #define             XSTBYEN         (1U << 6)
@@ -482,12 +485,18 @@ static void TIME_CRITICAL set_controller_pins(can_interface_t *spi_interface, bo
     // TXCANOD=1 to select open collector transmit pin
     // PM1=1 to use pin as GPIO1
     // PM0=1 to use pin as GPIO0
+    // LAT1=1 GPIO1 high
+    // LAT0=1 GPIO0 high
     // TRIS1=1 to select GPIO1 as an input
     // TRIS0=1 to select GPIO0 as an input
+#if defined(REDQUEEN2)
+    uint32_t word = SOF | PM1 | PM0;// | LAT1 | LAT0;
+#else
     uint32_t word = SOF | PM1 | PM0 | TRIS1 | TRIS0;
     if (tx_open_drain) {
         word |= TXCANOD;
     }
+#endif
     // Due to a silicon bug, IOCON must be written byte-by-byte
     // MCP251xFD is little-endian (least-signficant bits of a word are in low
     // memory address - see Figure 3-1 of datasheet). Compiler will spot these
@@ -748,7 +757,7 @@ static void TIME_CRITICAL init_tx_buffers(can_controller_t *controller)
 
     // Ensure there are no references to any CANFrame instances
     for (uint32_t i = 0; i < CAN_TX_QUEUE_SIZE; i++) {
-        controller->tx_pri_queue.uref[i] = can_uref_null;
+      controller->tx_pri_queue.uref[i] = 0; // can_uref_null;
         controller->tx_pri_queue.uref_valid[i] = false;
     }
     controller->tx_pri_queue.num_free_slots = CAN_TX_QUEUE_SIZE;
@@ -808,7 +817,7 @@ static void TIME_CRITICAL tx_handler(can_controller_t *controller)
         // all RAM for references to the heap address space when doing garbage collection so
         // if this is running in MicroPython firmware it's important to ensure there are no
         // references left).
-        controller->tx_pri_queue.uref[seq] = can_uref_null;
+        controller->tx_pri_queue.uref[seq] = NULL; //can_uref_null;
         // If this is a FIFO frame and there are more FIFO frames, then queue that one
         if (fifo && controller->tx_fifo.num_free_slots < CAN_TX_FIFO_SIZE) {
             controller->tx_fifo.num_free_slots++;
@@ -985,12 +994,13 @@ static void TIME_CRITICAL rx_handler(can_controller_t *controller)
     uint32_t data_0 = mcp25xxfd_convert_bytes(r[3]);
     uint32_t data_1 = mcp25xxfd_convert_bytes(r[4]);
 
-    can_frame_t frame = {.canid = canid,
-                         .dlc = dlc,
-                         .remote = remote,
-                         .data[0] = data_0,
-                         .data[1] = data_1,
-                         .id_filter = id_filter};
+    can_frame_t frame;
+    frame.canid = canid;
+    frame.dlc = dlc;
+    frame.remote = remote;
+    frame.data[0] = data_0;
+    frame.data[1] = data_1;
+    frame.id_filter = id_filter;
 
     // Callback is a good place to put any CAN ID or payload triggering function
     can_isr_callback_frame_rx(&frame, timestamp);

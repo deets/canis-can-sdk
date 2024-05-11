@@ -21,6 +21,8 @@
 
 #if defined(HOST_CANPICO)
 #include "rp2/mcp25xxfd-rp2.h"
+#elif defined(HOST_P2)
+#include "p2/mcp25xxfd-p2.h"
 #else
 #error "Unknown host"
 #endif
