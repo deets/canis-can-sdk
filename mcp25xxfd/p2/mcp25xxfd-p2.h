@@ -54,7 +54,7 @@ typedef struct {
 // but the other fields the same.
 static inline void mcp25xxfd_spi_bind_redqueen2(can_interface_t *interface)
 {
-  interface->spi_device.start(CAN_SPI_RX, CAN_SPI_TX, CAN_SCK, 800, 0, 0);
+  interface->spi_device.start(CAN_SPI_RX, CAN_SPI_TX, CAN_SCK, 1700, 0, 0);
   interface->magic = 0x1e5515f0U;
 }
 
@@ -94,7 +94,7 @@ static inline void mcp25xxfd_spi_gpio_enable_irq(can_interface_t *interface)
 
 static inline bool mcp25xxfd_spi_gpio_irq_asserted(can_interface_t *interface)
 {
-    // Reads the value of the interrupt pin, returns true if the interrupt pin is asserted
+  return _pinread(CAN_IRQ) == 0;
 }
 
 static inline void mcp25xxfd_spi_gpio_disable_irq(can_interface_t *interface)
