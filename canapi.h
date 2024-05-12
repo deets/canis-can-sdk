@@ -22,6 +22,7 @@
 #define CANAPI_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 // The MCP25xxFD drivers support the MCP2517FD, MCP2518FD and MCP251863 CAN
 // controllers from Microchip.
