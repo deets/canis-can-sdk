@@ -132,7 +132,7 @@ typedef struct {
 INLINE can_id_t can_make_id(bool extended, uint32_t arbitration_id)
 {
     can_id_t ret;
-    
+
     if (extended) {
         arbitration_id &= CAN_ID_ARBITRATION_ID;
         ret.id = (arbitration_id >> 18) & 0x7ffU;
@@ -178,12 +178,12 @@ typedef enum {
 
 /// @brief Standard CAN bit rate profiles
 typedef enum {
-    CAN_BITRATE_500K_75 = 0,    // 500kbit/sec 75% sample (default)    
-    CAN_BITRATE_250K_75,        // 250kbit/sec 75% sample point 
+    CAN_BITRATE_500K_75 = 0,    // 500kbit/sec 75% sample (default)
+    CAN_BITRATE_250K_75,        // 250kbit/sec 75% sample point
     CAN_BITRATE_125K_75,        // 125kbit/sec 75% sample point
     CAN_BITRATE_1M_75,          // 1Mbit/sec 75% sample point
     CAN_BITRATE_500K_50,        // 500kbit/sec 50% sample (default)
-    CAN_BITRATE_250K_50,        // 250kbit/sec 50% sample point 
+    CAN_BITRATE_250K_50,        // 250kbit/sec 50% sample point
     CAN_BITRATE_125K_50,        // 125kbit/sec 50% sample point
     CAN_BITRATE_1M_50,          // 1Mbit/sec 50% sample point
     CAN_BITRATE_2M_50,          // 2Mbit/sec 50% sample point NON STANDARD
@@ -191,7 +191,7 @@ typedef enum {
     CAN_BITRATE_2_5M_75 ,       // 2.5Mbit/sec 75% sample point NON STANDARD
     CAN_BITRATE_2M_80,          // 2Mbit/sec 80% sample point NON STANDARD
     CAN_BITRATE_500K_875,       // 500kbit/sec 87.5% sample
-    CAN_BITRATE_250K_875,       // 250kbit/sec 87.5% sample point (J1939, CANOpen) 
+    CAN_BITRATE_250K_875,       // 250kbit/sec 87.5% sample point (J1939, CANOpen)
     CAN_BITRATE_125K_875,       // 125kbit/sec 87.5% sample point
     CAN_BITRATE_1M_875,         // 1Mbit/sec 85.5% sample point
     CAN_BITRATE_CUSTOM,         // A custom profile (other parameters must be defined)
@@ -305,7 +305,7 @@ typedef struct {
         uint8_t tail_idx;                               // Index into first free frame at the back of the FIFO
         uint8_t free;                                   // Number of free slots in the queue
         uint8_t dropped_event_idx;                      // Used when the FIFO has overrun
-    } rx_fifo;       
+    } rx_fifo;
 
     // Frame transmit FIFO (feeds into priority queue)
     struct {
@@ -366,7 +366,7 @@ typedef struct {
 /// @exception The caller must have performed the host-specific binding call before making this call
 can_errorcode_t can_setup_controller(can_controller_t *controller,
                                      const can_bitrate_t *bitrate,
-                                     const can_id_filters_t *all_filters, 
+                                     const can_id_filters_t *all_filters,
                                      can_mode_t mode,
                                      uint16_t options);
 
@@ -549,7 +549,7 @@ INLINE void can_make_frame_from_bytes(can_frame_t *frame, const uint8_t *src)
 
     can_make_frame(frame, ide, arbitration_id, dlc, data, remote);
     // The reference in the frame is the 32-bit tag stored in the frame
-    can_frame_set_uref(frame, (void *)tag); 
+    can_frame_set_uref(frame, (void *)tag);
 }
 
 INLINE void can_make_bytes_from_frame(uint8_t *dest, const can_frame_t *frame, uint32_t tag)
@@ -836,13 +836,13 @@ inline void mcp25xxfd_spi_gpio_enable_irq(can_interface_t *interface);
 // is null.
 inline uint32_t mcp25xxfd_convert_bytes(uint32_t w);
 
-// Check interrupt GPIO pin for a specific interface to see if an interrupt is asserted 
+// Check interrupt GPIO pin for a specific interface to see if an interrupt is asserted
 inline bool mcp25xxfd_spi_gpio_irq_asserted(can_interface_t *interface);
 
 // Disable interrupts on the GPIO pin connected to the controller's IRQ line
 inline void mcp25xxfd_spi_gpio_disable_irq(can_interface_t *interface);
 
-// Select the controller via its SPI chip select I/O pin (active low) 
+// Select the controller via its SPI chip select I/O pin (active low)
 inline void mcp25xxfd_spi_select(can_interface_t *interface);
 
 // Deselect the controller via its SPI chip select I/O pin

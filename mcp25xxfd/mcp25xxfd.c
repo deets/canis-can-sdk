@@ -34,7 +34,7 @@
 // TODO speed up ISRs: calculate buffer addr by shadowing TEF and RX FIFO rather than
 //      use an SPI transaction to pick up
 // TODO parameterize the mode request call to allow a timeout for requesting the controller
-//      go into a specific mode (the CAN state machine goes into bus integration and 
+//      go into a specific mode (the CAN state machine goes into bus integration and
 //      comes out in the requested mode only after that completes successfully)
 // TODO faster FIFO implementation using power-of-two masks on index values
 // TODO add low-power standby mode to API (put controller into standby, put transceiver into standby via XSTBY pin)
@@ -60,7 +60,7 @@
 // C1BDIAG0
 // C1BDIAG1
 // C1TXQSTA
-// C1FIFOSTAm  
+// C1FIFOSTAm
 //
 // Workaround is to use the READ_CRC function to read them (which adds 2 bytes to the
 // transaction) and then re-issue a request if that fails. There is a gnomic phrase
@@ -286,7 +286,7 @@ static uint32_t TIME_CRITICAL read_word_crc(can_interface_t *spi_interface, uint
 
         // CRC is transmitted by the chip as a big endian 16-bit integer
         crc_rxd = (resp[7] << 8) | (resp[8]);
-    
+
         if (crc_calc != crc_rxd) {
             spi_interface->crc_errors++;
             retries++;
@@ -422,7 +422,7 @@ uint32_t WEAK TIME_CRITICAL can_isr_callback_uref(can_uref_t uref)
 #define         C1BDIAG0        (0x038U)
 #define         C1BDIAG1        (0x03cU)
 #define         C1TEFCON        (0x040U)
-#define             FSIZE(n)        (((n) & 0x1fU) << 24) 
+#define             FSIZE(n)        (((n) & 0x1fU) << 24)
 #define             FRESET          (1U << 10)
 #define             UINC            (1U << 8)
 #define             TEFTSEN         (1U << 5)
@@ -677,7 +677,7 @@ static bool TIME_CRITICAL send_frame(can_controller_t *controller, const can_fra
             // Copy the frame into the message slot in the controller
             // Layout of TXQ message object:
             uint32_t t[4];
-            
+
             // CAN ID in the controller is in the following format:
             //          31       23       15       7
             //          V        V        V        V
@@ -1029,7 +1029,7 @@ static void TIME_CRITICAL rx_handler(can_controller_t *controller)
         }
         else {
             // Either no space (in which case there is already an overflow at the back)
-            // or there is space for 1 slot (in which case, put an overflow event there) 
+            // or there is space for 1 slot (in which case, put an overflow event there)
             if (controller->rx_fifo.free == 0) {
                 // Update overflow
                 update_overflow = true;
@@ -1055,7 +1055,7 @@ static void TIME_CRITICAL rx_handler(can_controller_t *controller)
         // The timestamp is the time of the first drop
         controller->rx_fifo.rx_events[idx].timestamp = timestamp;
     }
-    if (update_overflow) {    
+    if (update_overflow) {
         // This doesn't add anything to the FIFO, just updates the tail record
         // There must already an overflow frame at the back of the queue
         controller->rx_fifo.rx_events[controller->rx_fifo.dropped_event_idx].event.overflow.frame_cnt++;
@@ -1195,7 +1195,7 @@ static uint32_t TIME_CRITICAL pop_tx_event_as_bytes(can_controller_t *controller
 // TODO Could move to new vectorized interrupt handler using C1VEC
 // C1VEC is used to work out which interrupt should be handled. The ICODE field
 // is a 7-bit field that indicates the following enabled:
-// 
+//
 // * 100 1001 C1TXATIF (TEF event)
 // * 100 1000 IMVIF (error event)
 //  [100 0111 MODIF (mode change)]
@@ -1289,7 +1289,7 @@ uint32_t TIME_CRITICAL can_get_time(can_controller_t *controller)
 can_status_t TIME_CRITICAL can_get_status(can_controller_t *controller)
 {
     can_interface_t *spi_interface = &controller->host_interface;
- 
+
     can_status_t status = {.status = 0};
 
     if (controller != NULL) {
@@ -1315,7 +1315,7 @@ can_errorcode_t TIME_CRITICAL can_setup_controller(can_controller_t *controller,
                                                    const can_id_filters_t *all_filters,
                                                    can_mode_t mode,
                                                    uint16_t options)
-{    
+{
     // Modes are:
     // 0: (default) CAN_NORMAL, start normally
     // 1: CAN_LISTEN_ONLY, does not ever set TX to 0
@@ -1589,7 +1589,6 @@ bool TIME_CRITICAL can_recv(can_controller_t *controller, can_rx_event_t *event)
         // If the controller has not been initialized then return nothing received
         return false;
     }
-
     can_interface_t *spi_interface = &controller->host_interface;
     bool result;
     mcp25xxfd_spi_gpio_disable_irq(spi_interface);
