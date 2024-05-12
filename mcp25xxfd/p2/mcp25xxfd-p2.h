@@ -22,6 +22,8 @@
 #define MCP25xxFD_RP2_H
 
 #include <sys/types.h>
+#include <stdbool.h>
+
 #include "../../../../spi.h"
 
 // Target-specific type defining the interface to the CAN controller
