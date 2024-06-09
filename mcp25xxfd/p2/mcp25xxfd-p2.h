@@ -31,14 +31,15 @@
 // certain parameters for the SPI. These are included in this structure.
 
 typedef struct {
-    spi_t spi_device;                 // Set to SPI_DEVICE
-    uint32_t crc_errors;                    // Count of CRC errors
-    uint32_t magic;                         // Magic number to indicate the interface is set
-    uint8_t spi_rx;                         // MISO pin
-    uint8_t spi_tx;                         // MOSI pin
-    uint8_t spi_sck;                        // SPI clock
-    uint8_t spi_irq;                        // IRQ pin
-    uint8_t spi_cs;                         // SPI device chip select
+  spi_t spi_device;                 // Set to SPI_DEVICE
+  uint32_t crc_errors;                    // Count of CRC errors
+  uint32_t magic;                         // Magic number to indicate the interface is set
+  uint8_t spi_rx;                         // MISO pin
+  uint8_t spi_tx;                         // MOSI pin
+  uint8_t spi_sck;                        // SPI clock
+  uint8_t spi_irq;                        // IRQ pin
+  uint8_t spi_cs;                         // SPI device chip select
+  int spi_lock;
 } can_interface_t;
 
 // Binds the drivers to the CANPico hardware
@@ -54,10 +55,11 @@ typedef struct {
 // This binds an SPI interface for a specific board. For other devices this will change.
 // For multiple devices on the same SPI channel, spi_cs and spi_irq will be different
 // but the other fields the same.
-static inline void mcp25xxfd_spi_bind_redqueen2(can_interface_t *interface)
+static inline void mcp25xxfd_spi_bind_redqueen2(can_interface_t *interface, int spi_lock)
 {
   interface->spi_device.start(CAN_SPI_RX, CAN_SPI_TX, CAN_SCK, 1700, 0, 0);
   interface->magic = 0x1e5515f0U;
+  interface->spi_lock = spi_lock;
 }
 
 #else
@@ -105,12 +107,14 @@ static inline void mcp25xxfd_spi_gpio_disable_irq(can_interface_t *interface)
 
 static inline void mcp25xxfd_spi_select(can_interface_t *interface)
 {
+  while(_locktry(interface->spi_lock) == 0) {}
   _pinl(CAN_CS);
 }
 
 static inline void mcp25xxfd_spi_deselect(can_interface_t *interface)
 {
   _pinh(CAN_CS);
+  _lockrel(interface->spi_lock);
 }
 
 static inline void mcp25xxfd_spi_write(can_interface_t *interface, const uint8_t *src, size_t len)
