@@ -21,10 +21,12 @@
 #ifndef MCP25xxFD_RP2_H
 #define MCP25xxFD_RP2_H
 
+#include "../../../../rq2/rq2-pins.h"
+#include "../../../../spin2lib/spi.h"
+
 #include <sys/types.h>
 #include <stdbool.h>
 
-#include "../../../../spi.h"
 
 // Target-specific type defining the interface to the CAN controller
 // This is SPI for the MCP25xxFD (and MCP251863) and on the RP2040 there are
@@ -45,19 +47,13 @@ typedef struct {
 // Binds the drivers to the CANPico hardware
 #if defined(REDQUEEN2)
 
-#define CAN_SPI_TX 0
-#define CAN_SPI_RX 1
-#define CAN_SCK 2
-#define CAN_CS 34
-#define CAN_IRQ 35
-
 
 // This binds an SPI interface for a specific board. For other devices this will change.
 // For multiple devices on the same SPI channel, spi_cs and spi_irq will be different
 // but the other fields the same.
 static inline void mcp25xxfd_spi_bind_redqueen2(can_interface_t *interface, int spi_lock)
 {
-  interface->spi_device.start(CAN_SPI_RX, CAN_SPI_TX, CAN_SCK, 1700, 0, 0);
+  interface->spi_device.start(SPI0_RX, SPI0_TX, SPI0_CLK, 1700, 0, 0);
   interface->magic = 0x1e5515f0U;
   interface->spi_lock = spi_lock;
 }
